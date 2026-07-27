@@ -1,0 +1,116 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package models; // Declares that this class belongs to the 'models' package
+
+/**
+ * Dog class represents a dog in the daycare system.
+ * Extends Pet and adds dog-specific properties like breed, dangerous status, and neutered.
+ */
+public class Dog extends Pet { // Inherits from Pet, so has all Pet properties and behaviors
+
+    /* -----------------------------
+       Constants
+       ----------------------------- */
+
+    public static final double DANGEROUS_DAILY_RATE = 40.0; // Daily fee for dangerous dogs
+    public static final double NONDANGEROUS_DAILY_RATE = 30.0; // Daily fee for non-dangerous dogs
+
+    /* -----------------------------
+       Fields
+       ----------------------------- */
+
+    private String breed; // Breed of the dog; defaults to "Unknown" if null
+    private boolean dangerousBreed; // True if dog is considered dangerous
+    private boolean neutered; // True if dog is neutered
+
+    /* -----------------------------
+       Constructor
+       ----------------------------- */
+
+    public Dog(String name, String owner, boolean[] daysAttending, char sex,
+               String breed, boolean dangerousBreed, boolean neutered) {
+
+        super(name, owner, daysAttending, sex); // Call Pet constructor to set common properties
+
+        this.breed = breed != null ? breed : "Unknown"; // Set breed, default to "Unknown"
+        this.dangerousBreed = dangerousBreed; // Set dangerous status
+        this.neutered = neutered; // Set neutered status
+    }
+
+    /* -----------------------------
+       Setters
+       ----------------------------- */
+
+    public void setBreed(String breed) {
+        this.breed = (breed != null) ? breed : "Unknown"; // Set breed or default
+    }
+
+    public void setDangerousBreed(boolean dangerousBreed) {
+        this.dangerousBreed = dangerousBreed; // Set dangerous status
+    }
+
+    public void setNeutered(boolean neutered) {
+        this.neutered = neutered; // Set neutered status
+    }
+
+    /* -----------------------------
+       Getters
+       ----------------------------- */
+
+    public String getBreed() {
+        return breed; // Return dog's breed
+    }
+
+    public boolean isDangerousBreed() {
+        return dangerousBreed; // Return true if dog is dangerous
+    }
+
+    public boolean isNeutered() {
+        return neutered; // Return true if dog is neutered
+    }
+
+    /* -----------------------------
+       Weekly Fee Calculation
+       ----------------------------- */
+
+    @Override
+    public double calculateWeeklyFee() { // Implements abstract method from Pet
+        double dailyRate = dangerousBreed ? DANGEROUS_DAILY_RATE : NONDANGEROUS_DAILY_RATE;
+        // Choose daily rate based on dangerous status
+        double weeklyFee = 0.0;
+
+        boolean[] days = getDaysAttending(); // Get attendance array
+        for (boolean attending : days) { // Loop through each day
+            if (attending) { // If dog attends that day
+                weeklyFee += dailyRate; // Add daily rate to weekly fee
+            }
+        }
+        return weeklyFee; // Return total weekly fee
+    }
+
+    /* -----------------------------
+       toString()
+       ----------------------------- */
+
+    @Override
+    public String toString() { // Returns a string representation of the dog
+        String daysStr = "";
+        boolean[] days = getDaysAttending(); // Get attendance array
+
+        for (int i = 0; i < days.length; i++) { // Convert boolean array to string
+            daysStr += days[i];
+            if (i < days.length - 1) {
+                daysStr += ", ";
+            }
+        }
+
+        return "Dog [ID=" + getId() +
+                ", Name=" + getName() +
+                ", Owner=" + getOwner() +
+                ", Sex=" + getSex() +
+                ", DaysAttending=" + daysStr +
+                ", Breed=" + breed +
+                ", DangerousBreed=" + dangerousBreed +
+                ", Neutered=" + neutered + "]"; // Full formatted info
+    }
+}

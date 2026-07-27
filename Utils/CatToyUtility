@@ -1,0 +1,61 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package utils; // Declares that this class belongs to the 'utils' package
+
+import java.util.HashMap;
+import java.util.Map;
+
+/**
+ * CatToyUtility is a helper class for managing cat toys.
+ * Stores known cat toys and their descriptions, and provides methods to:
+ * - Check if a toy is valid
+ * - Retrieve all toys with info
+ * Used in the Cat class for validating favourite toys.
+ */
+public class CatToyUtility {
+
+    // -----------------------------
+    // Cat Toys Map
+    // -----------------------------
+    // Maps toy names (uppercase) to descriptions
+    private static Map<String, String> catToys = new HashMap<>() {{
+        put("FEATHER WAND", "Interactive toy for all ages"); // Key = toy name, value = description
+        put("LASER POINTER", "Supervised play only");
+        put("BALL OF YARN", "Suitable for kittens");
+        put("MICE TOY", "Safe for indoor cats");
+        put("CATNIP MOUSE", "Encourages active play");
+        put("SCRATCHING POST", "Essential for claw maintenance");
+        put("TUNNEL", "Fun for hiding and running");
+    }};
+
+    // -----------------------------
+    // Methods
+    // -----------------------------
+
+    /**
+     * Returns a formatted string containing all cat toys and their info.
+     *
+     * @return A string listing each toy and its description
+     */
+    static public String getCatToys() {
+        String info = "Cat Toys and Info:"; // Initialize output string
+        for (Map.Entry<String, String> entry : catToys.entrySet()) { // Loop through all entries
+            info += "- " + entry.getKey() + " | Info: " + entry.getValue(); // Append toy info
+        }
+        return info; // Return formatted string
+    }
+
+    /**
+     * Checks if a given string is a valid cat toy.
+     *
+     * @param catToy Toy name to check (case-insensitive)
+     * @return true if toy exists in catToys, false otherwise
+     */
+    public static boolean isCatToy(String catToy) {
+        if (catToy == null) { // If null input
+            return false; // Not valid
+        }
+        return catToys.containsKey(catToy.toUpperCase());
+        // Convert input to uppercase to match keys, then check map
+    }
+}

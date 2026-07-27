@@ -1,0 +1,402 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package main; // Declares that this class belongs to the 'main' package
+
+// Import statements for other classes used in this class
+import controllers.DayCare; // Imports the DayCare controller
+import models.*;         // Imports all models (Cat, Dog, Pet, Misc)
+import utils.*;             // Imports all utility classes (ScannerInput, Utilities, DogBreedUtility, CatToyUtility)
+
+/**
+ * Driver class for the DayCare application.
+ * Provides a text-based interface for managing pets.
+ * Users can add, delete, update, list, search, and sort pets.
+ * Supports Dogs and Cats, each with specific attributes.
+ * @version 1.0
+ */
+public class Driver {
+
+    private static DayCare dayCare; // Static variable to store the main DayCare instance
+
+    // -----------------------------
+    // Main Method
+    // -----------------------------
+
+    /**
+     * Main entry point of the application.
+     * Initializes the DayCare and runs the main menu loop until exit.
+     * @param args Command-line arguments (unused)
+     */
+    public static void main(String[] args) {
+        dayCare = new DayCare("Happy Paws Kennel"); // Creates a DayCare with name and max capacity
+
+        boolean exit = false; // Flag to control main menu loop
+
+        // Main menu loop, runs until user selects 'exit'
+        while (!exit) {
+            showMainMenu(); // Display the main menu options
+            int choice = ScannerInput.readNextInt("Enter choice: "); // Ask user for menu choice
+
+            // Handle user's choice using switch expression
+            switch (choice) {
+                case 1 -> petsCrudMenu(); // Open CRUD menu for pets
+                case 2 -> reportsMenu(); // Open reports menu
+                case 3 -> searchPets(); // Search pets by owner
+                case 4 -> sortPets(); // Sort pets by name
+                case 5 -> { // Save all data to XML
+                    dayCare.save();
+                    System.out.println("All data saved.");
+                }
+                case 6 -> { // Load all data from XML
+                    dayCare.load();
+                    System.out.println("All data loaded.");
+                }
+                case 0 -> exit = true; // Exit the program
+                default -> System.out.println("Invalid choice. Try again."); // Invalid menu choice
+            }
+        }
+
+        System.out.println("Exiting... Goodbye!"); // Goodbye message
+    }
+
+    // -----------------------------
+    // Main Menu Display
+    // -----------------------------
+
+    /**
+     * Displays the main menu options to the user.
+     */
+    private static void showMainMenu() {
+        System.out.println("\n----- MAIN MENU -----");
+        System.out.println("1) Pets CRUD Menu"); // Option 1: Add, update, delete pets
+        System.out.println("2) Reports Menu"); // Option 2: View reports
+        System.out.println("-----------------------");
+        System.out.println("3) Search Pets"); // Option 3: Search pets by owner
+        System.out.println("4) Sort Pets"); // Option 4: Sort pets alphabetically
+        System.out.println("-----------------------");
+        System.out.println("5) Save all"); // Option 5: Save data
+        System.out.println("6) Load all"); // Option 6: Load data
+        System.out.println("-----------------------");
+        System.out.println("0) Exit"); // Option 0: Exit program
+    }
+
+    // =========================
+    // Pets CRUD Menu
+    // =========================
+
+    /**
+     * Displays the CRUD menu for pets.
+     * Users can add, delete, list, or update pets.
+     */
+    private static void petsCrudMenu() {
+        boolean back = false; // Flag to control CRUD menu loop
+        while (!back) { // Loop until user selects 'Return'
+            System.out.println("\n---- Pets CRUD Menu ----");
+            System.out.println("1) Add New Pet");
+            System.out.println("2) Delete A Pet");
+            System.out.println("3) List All Pets");
+            System.out.println("4) Update Pets Information");
+            System.out.println("0) Return To Main Menu");
+
+            int choice = ScannerInput.readNextInt("Enter choice: "); // Ask user for CRUD choice
+
+            // Handle user's choice
+            switch (choice) {
+                case 1 -> addPetMenu(); // Add a pet
+                case 2 -> deletePet(); // Delete a pet
+                case 3 -> listAllPets(); // List all pets
+                case 4 -> updatePet(); // Update a pet
+                case 0 -> back = true; // Return to main menu
+                default -> System.out.println("Invalid choice. Try again."); // Invalid input
+            }
+        }
+    }
+
+    // =========================
+    // Add Pet Menu
+    // =========================
+
+    /**
+     * Handles adding a new pet.
+     * Prompts user for type, name, owner, sex, and attendance days.
+     */
+    private static void addPetMenu() {
+        System.out.println("\nAdd Pet");
+
+        // Ask user for type (dog, cat or misc) and normalize to lowercase
+        String type = ScannerInput.readNextLine("Enter type (Dog/Cat/Misc): ").trim().toLowerCase();
+
+        // Ask for basic pet info
+        String name = ScannerInput.readNextLine("Enter name: ");
+        String owner = ScannerInput.readNextLine("Enter owner: ");
+        char sex = ScannerInput.readNextChar("Enter sex (m/f): ");
+
+        // Initialize attendance array for Mon-Fri
+        boolean[] days = new boolean[5];
+        String[] dayNames = {"Mon", "Tue", "Wed", "Thu", "Fri"};
+
+        // Loop to fill attendance array
+        for (int i = 0; i < 5; i++) {
+            days[i] = ScannerInput.readNextBoolean("Does the pet attend on " + dayNames[i] + "?");
+        }
+
+        // Call pet-specific methods based on type
+        switch (type) {
+            case "dog" -> addDog(name, owner, sex, days);
+            case "cat" -> addCat(name, owner, sex, days);
+            case "misc" -> addMisc(name, owner, sex, days);
+            default -> System.out.println("Unknown pet type.");
+        }
+    }
+
+    /**
+     * Adds a new dog to the daycare.
+     */
+    private static void addDog(String name, String owner, char sex, boolean[] days) {
+        String breed;
+        do {
+            breed = ScannerInput.readNextLine("Enter dog breed: ").toUpperCase(); // Ask for breed in uppercase
+            if (!DogBreedUtility.checkBreed(breed)) { // Validates breed using the utility
+                System.out.println("Invalid breed. Try again.");
+            }
+        } while (!DogBreedUtility.checkBreed(breed)); // Repeat until valid breed entered
+
+        boolean dangerous = ScannerInput.readNextBoolean("Is this a dangerous breed?"); // Ask if dangerous
+        boolean neutered = ScannerInput.readNextBoolean("Is the dog neutered?"); // Ask if neutered
+
+        Dog dog = new Dog(name, owner, days, sex, breed, dangerous, neutered); // Create new Dog object
+
+        if (dayCare.addPet(dog)) { // Try to add to DayCare
+            System.out.println("Dog added successfully.");
+        } else {
+            System.out.println("Kennel is full."); // Full capacity
+        }
+    }
+
+    /**
+     * Adds a new cat to the daycare.
+     */
+    private static void addCat(String name, String owner, char sex, boolean[] days) {
+        boolean indoor = ScannerInput.readNextBoolean("Is this an indoor cat?"); // Ask if indoor
+
+        String toy;
+        do {
+            toy = ScannerInput.readNextLine("Enter favourite toy: ").toUpperCase(); // Ask for toy in uppercase
+            if (!CatToyUtility.isCatToy(toy)) { // Validate toy
+                System.out.println("Invalid toy. Try again.");
+            }
+        } while (!CatToyUtility.isCatToy(toy)); // Repeat until valid toy entered
+
+        Cat cat = new Cat(name, owner, days, sex, indoor, toy); // Create new Cat object
+
+        if (dayCare.addPet(cat)) { // Try to add to DayCare
+            System.out.println("Cat added successfully.");
+        } else {
+            System.out.println("Kennel is full."); // Full capacity
+        }
+    }
+
+    private static void addMisc(String name, String owner, char sex, boolean[] days) {
+        String animalType;
+        do {
+            animalType = ScannerInput.readNextLine("Enter type of animal: ").toUpperCase();
+            if (!MiscAnimalUtility.checkType(animalType)) {
+                System.out.println("Invalid animal type. Try again.");
+            }
+        } while (!MiscAnimalUtility.checkType(animalType));
+
+        boolean specialCare = ScannerInput.readNextBoolean("Does this animal require special care?");
+
+        Misc misc = new Misc(name, owner, days, sex, animalType, specialCare);
+
+        if (dayCare.addPet(misc)) {
+            System.out.println("Miscellaneous animal added successfully.");
+        } else {
+            System.out.println("Kennel is full.");
+        }
+    }
+
+    // =========================
+    // Delete Pet
+    // =========================
+
+    /**
+     * Deletes a pet by index.
+     */
+    private static void deletePet() {
+        listAllPets(); // Show all pets first
+        int index = ScannerInput.readNextInt("Enter pet index to delete: "); // Ask for index
+        if (Utilities.isValidIndex(dayCare.getAllPets(), index)) { // Validate index
+            Pet removed = dayCare.deletePetByIndex(index); // Remove pet
+            System.out.println("Removed: " + removed.getName());
+        } else {
+            System.out.println("Invalid index."); // Invalid input
+        }
+    }
+
+    // =========================
+    // List Pets
+    // =========================
+
+    /**
+     * Lists all pets in the daycare.
+     */
+    private static void listAllPets() {
+        System.out.println(dayCare.listAllPets()); // Call DayCare method to return formatted string
+    }
+
+    // =========================
+    // Update Pet
+    // =========================
+
+    /**
+     * Updates an existing pet's information.
+     */
+    private static void updatePet() {
+        listAllPets(); // Show pets first
+        int index = ScannerInput.readNextInt("Enter pet index to update: "); // Ask for index
+        Pet pet = dayCare.getPetByIndex(index); // Get pet by index
+        if (pet == null) { // Validate index
+            System.out.println("Invalid index.");
+            return;
+        }
+
+        // Ask for updated basic info
+        String name = ScannerInput.readNextLine("Enter new name: ");
+        String owner = ScannerInput.readNextLine("Enter new owner: ");
+        char sex = ScannerInput.readNextChar("Enter new sex (m/f): ");
+
+        boolean[] days = new boolean[5]; // Initialize new attendance array
+        System.out.println("Enter new attendance for Mon-Fri (y/n):");
+        for (int i = 0; i < 5; i++) {
+            days[i] = ScannerInput.readNextBoolean("Day " + (i + 1) + ": ");
+        }
+
+        // Update dog-specific fields
+        if (pet instanceof Dog dog) {
+            String breed;
+            do {
+                breed = ScannerInput.readNextLine("Enter dog breed: ").toUpperCase();
+            } while (!DogBreedUtility.checkBreed(breed));
+            boolean dangerous = ScannerInput.readNextBoolean("Is this a dangerous breed?");
+            boolean neutered = ScannerInput.readNextBoolean("Is the dog neutered?");
+            Dog updated = new Dog(name, owner, days, sex, breed, dangerous, neutered);
+            dayCare.updateDog(dog.getId(), updated); // Update in DayCare
+        }
+        // Update cat-specific fields
+        else if (pet instanceof Cat cat) {
+            boolean indoor = ScannerInput.readNextBoolean("Is this an indoor cat?");
+            String toy;
+            do {
+                toy = ScannerInput.readNextLine("Enter favourite toy: ").toUpperCase();
+            } while (!CatToyUtility.isCatToy(toy));
+            Cat updated = new Cat(name, owner, days, sex, indoor, toy);
+            dayCare.updateCat(cat.getId(), updated); // Update in DayCare
+        }
+        // Update Misc-specific fields
+        else if (pet instanceof Misc misc) {
+            String animalType;
+            do {
+                animalType = ScannerInput.readNextLine("Enter type of animal (Rabbit/Guinea Pig/Alpaca/Horse): ").toUpperCase();
+            } while (!MiscAnimalUtility.checkType(animalType));
+
+            boolean specialCare = ScannerInput.readNextBoolean("Does this animal require special care?");
+            Misc updated = new Misc(name, owner, days, sex, animalType, specialCare);
+            dayCare.updateMisc(misc.getId(), updated);
+        }
+
+        System.out.println("Pet updated successfully.");
+    }
+
+    // =========================
+    // Reports Menu
+    // =========================
+
+    /**
+     * Displays the reports menu and handles user selection.
+     */
+    private static void reportsMenu() {
+        boolean back = false; // Loop control
+        while (!back) {
+            System.out.println("\n---- Reports Menu ----");
+            System.out.println("1) List all Pets");
+            System.out.println("2) List all Dogs");
+            System.out.println("3) List all Cats");
+            System.out.println("4) List all Misc");
+            System.out.println("5) List all Dangerous Dogs");
+            System.out.println("6) List all Indoor Cats");
+            System.out.println("7) List all Neutered Dogs");
+            System.out.println("8) Show Weekly Income Report");
+            System.out.println("0) Return to main menu");
+
+            int choice = ScannerInput.readNextInt("Enter choice: ");
+
+            switch (choice) {
+                case 1 -> System.out.println(dayCare.listAllPets()); // Print all pets
+                case 2 -> System.out.println(dayCare.listAllDogs()); // Print all dogs
+                case 3 -> System.out.println(dayCare.listAllCats()); // Print all cats
+                case 4 -> System.out.println(dayCare.listAllMisc()); // Print all Misc
+                case 5 -> System.out.println(dayCare.listAllDangerousDogs()); // Dangerous dogs
+                case 6 -> { // Indoor cats
+                    for (Pet p : dayCare.getAllPets()) {
+                        if (p instanceof Cat cat && cat.isIndoorCat()) {
+                            System.out.println(cat);
+                        }
+                    }
+                }
+                case 7 -> { // Neutered dogs
+                    for (Pet p : dayCare.getAllPets()) {
+                        if (p instanceof Dog dog && dog.isNeutered()) {
+                            System.out.println(dog);
+                        }
+                    }
+                }
+                case 8 -> System.out.println("Weekly income: $" +
+                        Utilities.toTwoDecimalPlaces(dayCare.getWeeklyIncome())); // Weekly fee report
+                case 0 -> back = true; // Return to main menu
+                default -> System.out.println("Invalid choice."); // Invalid input
+            }
+        }
+    }
+
+    // =========================
+    // Search Pets
+    // =========================
+
+    /**
+     * Searches pets by owner name.
+     */
+    private static void searchPets() {
+        String owner = ScannerInput.readNextLine("Enter owner name to search: "); // Ask for owner
+        System.out.println(dayCare.getPetsByOwnersName(owner)); // Print matching pets
+    }
+
+    // =========================
+    // Sort Pets (manual sort)
+    // =========================
+
+    /**
+     * Sorts all pets alphabetically by name using a manual bubble sort.
+     */
+    private static void sortPets() {
+        System.out.println("Sort pets by name ascending (manual sort):");
+
+        Pet[] petsArray = dayCare.getAllPets().toArray(new Pet[0]); // Convert list to array
+
+        // Bubble sort algorithm
+        for (int i = 0; i < petsArray.length - 1; i++) { // Outer loop for passes
+            for (int j = 0; j < petsArray.length - 1 - i; j++) { // Inner loop
+                if (petsArray[j].getName().compareToIgnoreCase(petsArray[j + 1].getName()) > 0) {
+                    Pet temp = petsArray[j]; // Swap elements if out of order
+                    petsArray[j] = petsArray[j + 1];
+                    petsArray[j + 1] = temp;
+                }
+            }
+        }
+
+        // Print sorted pets
+        for (Pet p : petsArray) {
+            System.out.println(p);
+        }
+    }
+}

@@ -1,0 +1,110 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package utils; // Declares that this class belongs to the 'utils' package
+
+import java.util.Scanner;
+
+/**
+ * ScannerInput is a utility class for safely reading user input from the console.
+ * Provides methods to read integers, doubles, characters, strings, and boolean values (Y/N).
+ * Handles common Scanner issues like input validation and buffer problems.
+ */
+public class ScannerInput {
+
+    // -----------------------------
+    // Integer Input
+    // -----------------------------
+
+    /**
+     * Reads an integer from the user, prompting repeatedly until valid input is entered.
+     *
+     * @param prompt Message to display to the user
+     * @return The integer entered by the user
+     */
+    public static int readNextInt(String prompt) {
+        do { // Loop until valid input
+            var scanner = new Scanner(System.in); // Create new Scanner each time
+            try {
+                System.out.print(prompt); // Display prompt
+                return Integer.parseInt(scanner.next()); // Try to parse input as integer
+            } catch (NumberFormatException e) { // If parsing fails
+                System.err.println("\tEnter a number please."); // Show error
+            }
+        } while (true);
+    }
+
+    // -----------------------------
+    // Double Input
+    // -----------------------------
+
+    /**
+     * Reads a double from the user, prompting repeatedly until valid input is entered.
+     *
+     * @param prompt Message to display to the user
+     * @return The double entered by the user
+     */
+    public static double readNextDouble(String prompt) {
+        do { // Loop until valid input
+            var scanner = new Scanner(System.in); // Create new Scanner each time
+            try {
+                System.out.print(prompt); // Display prompt
+                return Double.parseDouble(scanner.next()); // Try to parse input as double
+            } catch (NumberFormatException e) { // If parsing fails
+                System.err.println("\tEnter a number please."); // Show error
+            }
+        } while (true);
+    }
+
+    // -----------------------------
+    // String Input
+    // -----------------------------
+
+    /**
+     * Reads a line of text from the user.
+     *
+     * @param prompt Message to display to the user
+     * @return The line entered by the user
+     */
+    public static String readNextLine(String prompt) {
+        Scanner input = new Scanner(System.in); // Create new Scanner
+        System.out.print(prompt); // Display prompt
+        return input.nextLine(); // Return user input as string
+    }
+
+    // -----------------------------
+    // Character Input
+    // -----------------------------
+
+    /**
+     * Reads a single character from the user.
+     *
+     * @param prompt Message to display to the user
+     * @return The first character of the input
+     */
+    public static char readNextChar(String prompt) {
+        Scanner input = new Scanner(System.in); // Create new Scanner
+        System.out.print(prompt); // Display prompt
+        return input.next().charAt(0); // Return first character of input
+    }
+
+    // -----------------------------
+    // Boolean Input (Y/N)
+    // -----------------------------
+
+    /**
+     * Reads a boolean value from the user using Y/N input.
+     * Prompts repeatedly until valid input is entered.
+     *
+     * @param prompt Message to display to the user
+     * @return true if user enters 'Y' or 'y', false if 'N' or 'n'
+     */
+    public static boolean readNextBoolean(String prompt) {
+        char c;
+        do { // Loop until valid input
+            c = readNextChar(prompt + " (Y/N): "); // Prompt user
+            if (c == 'Y' || c == 'y') return true; // Return true for 'Y'
+            if (c == 'N' || c == 'n') return false; // Return false for 'N'
+            System.out.println("Please enter Y or N."); // Ask again if invalid
+        } while (true);
+    }
+}

@@ -1,0 +1,96 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package models; // Declares that this class belongs to the 'models' package
+
+import utils.MiscAnimalUtility;
+
+public class Misc extends Pet { // Inherits from Pet, so has all Pet properties and behaviors
+
+    /* -----------------------------
+       Fields
+       ----------------------------- */
+    private String type; // Animal type, validated
+    private boolean specialCare; // True if special care required
+
+    /* -----------------------------
+       Constant
+       ----------------------------- */
+
+    public static final double BASE_DAILY_RATE = 25.0; // Daily rate
+
+    /* -----------------------------
+       Constructor
+       ----------------------------- */
+    public Misc(String name, String owner, boolean[] daysAttending, char sex,
+                      String type, boolean specialCare) {
+
+        super(name, owner, daysAttending, sex); // Call Pet constructor to set common properties
+
+        setType(type);
+        this.specialCare = specialCare; // Set special care status
+    }
+
+    /* -----------------------------
+      Setters
+      ----------------------------- */
+    public void setType(String type) {
+        if (type != null && MiscAnimalUtility.checkType(type)) {
+            this.type = type.toUpperCase();
+        } else {
+            this.type = "UNKNOWN";
+        }
+    } // Default if invalid or null
+
+    public void setSpecialCare(boolean specialCare) {
+
+        this.specialCare = specialCare;
+    } // Return true if animal requires special care
+
+    /* -----------------------------
+       Getters
+       ----------------------------- */
+
+    public String getType() {
+        return type;
+    } // Return animal type
+
+    public boolean hasSpecialCare() {
+        return specialCare;
+    } // Return if special care required
+
+    /* -----------------------------
+       Weekly Fee Calculation
+       ----------------------------- */
+
+    @Override
+    public double calculateWeeklyFee() {
+        double dailyRate = BASE_DAILY_RATE;
+        if (specialCare) dailyRate += 10; // surcharge if special care required
+        double weeklyFee = 0.0;
+        boolean[] days = getDaysAttending();
+        for (boolean attending : days) {
+            if (attending) weeklyFee += dailyRate;
+        }
+        return weeklyFee;
+    }
+
+    /* -----------------------------
+       toString()
+       ----------------------------- */
+    @Override
+    public String toString() {
+        StringBuilder daysStr = new StringBuilder();
+        boolean[] days = getDaysAttending();
+        for (int i = 0; i < days.length; i++) {
+            daysStr.append(days[i]);
+            if (i < days.length - 1) daysStr.append(", ");
+        }
+        return "MiscAnimal [ID=" + getId() +
+                ", Name=" + getName() +
+                ", Owner=" + getOwner() +
+                ", Sex=" + getSex() +
+                ", DaysAttending=" + daysStr +
+                ", Type=" + type +
+                ", SpecialCare=" + specialCare + "]";
+    }
+}

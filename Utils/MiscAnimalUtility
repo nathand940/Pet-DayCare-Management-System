@@ -1,0 +1,54 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package utils; // Declares that this class belongs to the 'utils' package
+
+import java.util.HashSet; // Allows HashSet class to be used to quickly to add, remove, and check items
+import java.util.Set;
+
+/**
+ * MiscAnimalUtility is a helper class that manages a set of recognized Animal Types.
+ * Provides a method to check whether the type is valid.
+ * All Animal Types are stored in uppercase for easy comparison.
+ * All methods and data are static, so no object creation is necessary.
+ */
+
+public class MiscAnimalUtility {
+
+    // -----------------------------
+    // Fields
+    // -----------------------------
+    /** A set containing all recognized Animal Types, stored in uppercase. */
+    private static final Set<String> miscAnimalTypes = new HashSet<>();
+
+    // -----------------------------
+    // Static Initialization Block
+    // -----------------------------
+    /**
+     * This block runs once when the class is loaded.
+     * Fills the miscAnimalTypess set with all recognized Animals with room to add more.
+     */
+
+    static {
+        miscAnimalTypes.add("RABBIT");
+        miscAnimalTypes.add("GUINEA PIG");
+        miscAnimalTypes.add("ALPACA");
+        miscAnimalTypes.add("HORSE");
+        miscAnimalTypes.add("FERRET");
+        // add more types here as needed
+    }
+
+    // -----------------------------
+    // Methods
+    // -----------------------------
+    /**
+     * Checks if a given animal type is recognized.
+     *
+     * @param type The animal type to check (case-insensitive)
+     * @return true if animal type exists in the set, false otherwise
+     */
+
+    public static boolean checkType(String type) {
+        if (type == null) return false;
+        return miscAnimalTypes.contains(type.toUpperCase());
+    }
+}

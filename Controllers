@@ -1,0 +1,444 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package controllers; // Defines the package this class belongs to
+
+import java.io.*; // Imports input/output classes for file reading/writing
+import java.util.ArrayList; // Imports ArrayList, a dynamic array data structure
+
+import com.thoughtworks.xstream.XStream; // Imports XStream for XML serialization
+import com.thoughtworks.xstream.io.xml.StaxDriver; // Imports StaxDriver for XML parsing
+import models.*; // Imports all models (Cat, Dog, Pet, Misc)
+
+/**
+ * DayCare is the main controller for the pet daycare system.
+ * Manages pets, reporting, statistics, and XML persistence.
+ */
+public class DayCare {
+
+    // -----------------------------
+    // Fields
+    // -----------------------------
+
+    private ArrayList<Pet> pets; // Stores all pets currently registered in the daycare
+    private String name; // Name of the daycare (truncated to 20 characters if too long)
+    private Object maxPets; // Temporary object to store max pets when loading from XML
+
+    // -----------------------------
+    // Constructor
+    // -----------------------------
+
+    /**
+     * Initializes a new DayCare object with a name and maximum pet capacity.
+     */
+    public DayCare(String name) {
+        this.name = name.length() > 20 ? name.substring(0, 20) : name; // Truncate name if longer than 20
+        this.pets = new ArrayList<>(); // Initialize empty ArrayList for pets
+    }
+
+    // -----------------------------
+    // CRUD Methods
+    // -----------------------------
+
+    /**
+     * Adds a new pet to the daycare if there is space available.
+     */
+    public boolean addPet(Pet pet) {
+            pets.add(pet); // Add the pet to the list
+            return true; // Return true if added
+        }
+
+    /**
+     * Deletes a pet by its index in the list.
+     */
+    public Pet deletePetByIndex(int index) {
+        if (index >= 0 && index < pets.size()) { // Check if index is valid
+            return pets.remove(index); // Remove and return the pet
+        }
+        return null; // Return null if index is invalid
+    }
+
+    /**
+     * Deletes a pet by its unique ID.
+     */
+    public Pet deletePetById(int id) {
+        for (int i = 0; i < pets.size(); i++) { // Loop through all pets
+            if (pets.get(i).getId() == id) return pets.remove(i); // Remove and return if ID matches
+        }
+        return null; // Return null if no pet with that ID exists
+    }
+
+    /**
+     * Retrieves a pet by its index.
+     */
+    public Pet getPetByIndex(int index) {
+        if (index >= 0 && index < pets.size()) return pets.get(index); // Return pet at index
+        return null; // Return null if index invalid
+    }
+
+    // -----------------------------
+    // Reporting Methods
+    // -----------------------------
+
+    /**
+     * Lists all pets in the daycare.
+     */
+    public String listAllPets() {
+        if (pets.isEmpty()) return "No Pets"; // Return message if empty
+        String result = ""; // Initialize result string
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            result += i + ": " + pets.get(i) + "\n"; // Append index and pet info
+        }
+        return result; // Return final string
+    }
+
+    /**
+     * Lists all cats in the daycare.
+     */
+    public String listAllCats() {
+        String result = ""; // Store result string
+        int count = 0; // Count number of cats
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Cat) { // Check if pet is a cat
+                result += i + ": " + pets.get(i) + "\n"; // Append cat info
+                count++; // Increment count
+            }
+        }
+        return count == 0 ? "No cats" : result; // Return message if none found
+    }
+
+            /**
+            * Lists all misc animals in the daycare.
+            */
+    public String listAllMisc() {
+        String result = "";
+        int count = 0;
+        for (int i = 0; i < pets.size(); i++) {
+            if (pets.get(i) instanceof Misc) {
+                result += i + ": " + pets.get(i) + "\n";
+                count++;
+            }
+        }
+        return count == 0 ? "No Misc Animals" : result;
+    }
+
+    /**
+     * Lists all dogs in the daycare.
+     */
+    public String listAllDogs() {
+        String result = ""; // Store result string
+        int count = 0; // Count number of dogs
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Dog) { // Check if pet is a dog
+                result += i + ": " + pets.get(i) + "\n"; // Append dog info
+                count++; // Increment count
+            }
+        }
+        return count == 0 ? "No Dogs" : result; // Return message if none found
+    }
+
+    /**
+     * Lists all dangerous dogs.
+     */
+    public String listAllDangerousDogs() {
+        String result = ""; // Store result string
+        int count = 0; // Count dangerous dogs
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Dog && ((Dog) pets.get(i)).isDangerousBreed()) {
+                result += i + ": " + pets.get(i) + "\n"; // Append dangerous dog info
+                count++; // Increment count
+            }
+        }
+        return count == 0 ? "No Dangerous Dogs in the Kennels" : result; // Return message if none
+    }
+
+    /**
+     * Lists all pets belonging to a specific owner.
+     *
+     * @param owner The owner's name
+     * @return Formatted String of pets, or a message if none exist
+     */
+    public String listAllPetsByOwner(String owner) {
+        String result = ""; // Initialize empty string to store pet info
+        int count = 0; // Counter to track number of pets found for this owner
+
+        for (Pet p : pets) { // Loop through each pet in the daycare
+            if (p.getOwner().equalsIgnoreCase(owner)) { // Check if pet's owner matches (case-insensitive)
+                result += p + "\n"; // Append pet's toString info to result string
+                count++; // Increment count of matching pets
+            }
+        }
+        return count == 0 ? "No Pet with owner " + owner : result;
+        // If no pets found, return message. Otherwise return formatted pet info
+    }
+
+    /**
+     * Lists all pets that attend more than a specified number of days per week.
+     *
+     * @param numDays The minimum number of days
+     * @return Formatted String of pets, or a message if none exist
+     */
+    public String listAllPetsThatStayMoreThanDays(int numDays) {
+        String result = ""; // Initialize empty string to store pet info
+        int count = 0; // Counter to track number of pets that stay longer than numDays
+
+        for (Pet p : pets) { // Loop through each pet in the daycare
+            int attendingDays = 0; // Counter for how many days this pet attends
+            for (boolean day : p.getDaysAttending()) { // Loop through the pet's days attending array
+                if (day) attendingDays++; // Increment if pet attends on this day
+            }
+            if (attendingDays > numDays) { // Check if pet attends more than the specified days
+                result += p + "\n"; // Append pet info to result string
+                count++; // Increment count of pets meeting the criteria
+            }
+        }
+        return count == 0 ? "No Pet stays longer than " + numDays : result;
+        // Return message if none found, otherwise return formatted pet info
+    }
+
+    // -----------------------------
+// Number Methods (Statistics)
+// -----------------------------
+
+    /**
+     * Counts total number of pets.
+     */
+    public int numberOfPets() {
+        return pets.size(); // Return the size of the pets ArrayList
+    }
+
+    /**
+     * Counts total number of cats.
+     */
+    public int numberOfCats() {
+        int count = 0; // Initialize cat counter
+        for (Pet p : pets) if (p instanceof Cat) count++; // Increment if pet is a Cat
+        return count; // Return total number of cats
+    }
+
+    /**
+     * Counts total number of dogs.
+     */
+    public int numberOfDogs() {
+        int count = 0; // Initialize dog counter
+        for (Pet p : pets) if (p instanceof Dog) count++; // Increment if pet is a Dog
+        return count; // Return total number of dogs
+    }
+
+    /**
+     * Counts total number of misc animals.
+     */
+    public int numberOfMisc() {
+        int count = 0;
+        for (Pet p : pets) if (p instanceof Misc) count++;
+        return count;
+    }
+
+    /**
+     * Counts total number of dangerous dogs.
+     */
+    public int numberOfDangerousDogs() {
+        int count = 0; // Initialize dangerous dog counter
+        for (Pet p : pets) if (p instanceof Dog && ((Dog) p).isDangerousBreed()) count++;
+        // Increment if pet is a Dog and marked dangerous
+        return count; // Return total
+    }
+
+    /**
+     * Counts total number of indoor cats.
+     */
+    public int numberOfIndoorCats() {
+        int count = 0; // Initialize indoor cat counter
+        for (Pet p : pets) if (p instanceof Cat && ((Cat) p).isIndoorCat()) count++;
+        // Increment if pet is a Cat and indoor
+        return count; // Return total
+    }
+
+// -----------------------------
+// Update Methods
+// -----------------------------
+
+    /**
+     * Updates a dog’s details by ID.
+     */
+    public boolean updateDog(int id, Dog updatedDetails) {
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Dog && pets.get(i).getId() == id) {
+                // Check if this pet is the target dog
+                pets.set(i, updatedDetails); // Replace old dog with new details
+                return true; // Return true on success
+            }
+        }
+        return false; // Return false if dog not found
+    }
+
+    /**
+     * Updates a cat’s details by ID.
+     */
+    public boolean updateCat(int id, Cat updatedDetails) {
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Cat && pets.get(i).getId() == id) {
+                // Check if this pet is the target cat
+                pets.set(i, updatedDetails); // Replace old cat with new details
+                return true; // Return true on success
+            }
+        }
+        return false; // Return false if cat not found
+    }
+
+    public boolean updateMisc(int id, Misc updatedDetails) {
+        for (int i = 0; i < pets.size(); i++) { // Loop through pets
+            if (pets.get(i) instanceof Misc && pets.get(i).getId() == id) {
+                // Check if this pet is the target misc
+                pets.set(i, updatedDetails); // Replace old misc with new details
+                return true; // Return true on success
+            }
+        }
+        return false; // Return false if cat not found
+    }
+
+// -----------------------------
+// Validation Methods
+// -----------------------------
+
+    /**
+     * Checks if a given ID is valid (not already used).
+     */
+    public boolean isValidId(int id) {
+        for (Pet p : pets) if (p.getId() == id) return false; // Return false if ID exists
+        return true; // Otherwise ID is valid
+    }
+
+// -----------------------------
+// Other Methods
+// -----------------------------
+
+    /**
+     * Calculates the total weekly income from all pets.
+     */
+    public double getWeeklyIncome() {
+        double income = 0; // Initialize income
+        for (Pet p : pets) income += p.calculateWeeklyFee();
+        // Add each pet's weekly fee to total
+        return income; // Return total income
+    }
+
+    /**
+     * Returns all pets as a list.
+     */
+    public ArrayList<Pet> getAllPets() {
+        return pets; // Return reference to ArrayList of pets
+    }
+
+    /**
+     * Calculates the average number of days per week all pets attend.
+     */
+    public double getAverageNumDaysPerWeek() {
+        if (pets.isEmpty()) return 0; // Return 0 if no pets
+        int totalDays = 0; // Counter for total days attended
+        for (Pet p : pets) { // Loop through each pet
+            for (boolean day : p.getDaysAttending()) if (day) totalDays++;
+            // Count days marked true for attendance
+        }
+        return (double) totalDays / pets.size(); // Average = totalDays / number of pets
+    }
+
+    /**
+     * Finds a dog by owner and breed.
+     */
+    public Pet findDogByOwnerAndBreed(String owner, String breed) {
+        for (Pet p : pets) { // Loop through pets
+            if (p instanceof Dog) { // Check if pet is a Dog
+                Dog dog = (Dog) p; // Cast to Dog
+                if (dog.getOwner().equalsIgnoreCase(owner) &&
+                        dog.getBreed().equalsIgnoreCase(breed)) {
+                    // Check owner and breed
+                    return dog; // Return matching dog
+                }
+            }
+        }
+        return null; // Return null if none found
+    }
+
+    /**
+     * Returns a formatted string of pets for a given owner.
+     */
+    public String getPetsByOwnersName(String owner) {
+        String result = ""; // String to store pet info
+        int count = 0; // Count of pets found
+        for (Pet p : pets) { // Loop through pets
+            if (p.getOwner().equalsIgnoreCase(owner)) { // Match owner
+                result += p + "\n"; // Append pet info
+                count++;
+            }
+        }
+        return count == 0 ? "No Pets for " + owner : result; // Return result or message
+    }
+
+// -----------------------------
+// Persistence Methods (Save/Load XML)
+// -----------------------------
+
+    /**
+     * Saves the current daycare object to an XML file named daycare.xml
+     */
+    public void save() {
+        try {
+            XStream xstream = new XStream(new StaxDriver());
+            // Create XStream object using StaxDriver for XML
+            xstream.allowTypes(new Class[]{DayCare.class, Pet.class, models.Dog.class, models.Cat.class});
+            // Allow serialization of specific classes
+            xstream.setMode(XStream.ID_REFERENCES);
+            // Preserve object references in XML
+            xstream.alias("DayCare", DayCare.class); // XML tag alias
+            xstream.alias("Pet", Pet.class);
+            xstream.alias("Dog", models.Dog.class);
+            xstream.alias("Cat", models.Cat.class);
+            xstream.alias("Misc", models.Misc.class);
+            try (FileOutputStream fos = new FileOutputStream("daycare.xml")) {
+                // Open file to write
+                xstream.toXML(this, fos); // Serialize this DayCare object
+            }
+
+            System.out.println("Data saved successfully to daycare.xml");
+        } catch (IOException e) { // Handle file errors
+            System.err.println("Error saving data: " + e.getMessage());
+        }
+    }
+
+    /**
+     * Loads daycare data from XML file daycare.xml
+     */
+    public void load() {
+        try {
+            File file = new File("daycare.xml"); // Reference XML file
+            if (!file.exists() || file.length() == 0) {
+                System.out.println("No saved data found."); // File missing or empty
+                return;
+            }
+
+            XStream xstream = new XStream(new StaxDriver());
+            xstream.allowTypes(new Class[]{DayCare.class, Pet.class, models.Dog.class, models.Cat.class, models.Misc.class});
+            xstream.alias("DayCare", DayCare.class);
+            xstream.alias("Pet", Pet.class);
+            xstream.alias("Dog", models.Dog.class);
+            xstream.alias("Cat", models.Cat.class);
+            xstream.alias("Misc", models.Misc.class);
+            FileInputStream fis = new FileInputStream(file); // Open file to read
+            DayCare loaded = (DayCare) xstream.fromXML(fis); // Deserialize XML to DayCare object
+            fis.close(); // Close file
+
+            // Copy loaded data into current instance
+            this.name = loaded.name;
+            this.maxPets = loaded.maxPets;
+            this.pets = loaded.pets;
+
+            System.out.println("Data loaded successfully from daycare.xml");
+        } catch (IOException e) { // Handle file errors
+            System.err.println("Error loading data: " + e.getMessage());
+        } catch (com.thoughtworks.xstream.io.StreamException e) {
+            // Handle XML parsing errors
+            System.err.println("Error: Could not parse XML file. It may be empty or corrupted.");
+        }
+    }
+
+}

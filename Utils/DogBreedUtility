@@ -1,0 +1,69 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package utils; // Declares that this class belongs to the 'utils' package
+
+import java.util.HashSet; // Allows HashSet class to be used to quickly to add, remove, and check items
+import java.util.Set;
+
+/**
+ * DogBreedUtility is a helper class that manages a set of recognized dog breeds.
+ * Provides a method to check whether a breed is valid.
+ * All breed names are stored in uppercase for easy comparison.
+ * All methods and data are static, so no object creation is necessary.
+ */
+public class DogBreedUtility {
+
+    // -----------------------------
+    // Fields
+    // -----------------------------
+    /** A set containing all recognized dog breeds, stored in uppercase. */
+    private static final Set<String> dogBreeds = new HashSet<>();
+
+    // -----------------------------
+    // Static Initialization Block
+    // -----------------------------
+    /*
+     * This block runs once when the class is loaded.
+     * Fills the dogBreeds set with all recognized breeds.
+     */
+    static {
+        dogBreeds.add("LABRADOR RETRIEVER");
+        dogBreeds.add("GERMAN SHEPHERD");
+        dogBreeds.add("GOLDEN RETRIEVER");
+        dogBreeds.add("BULLDOG");
+        dogBreeds.add("BEAGLE");
+        dogBreeds.add("ROTTWEILER");
+        dogBreeds.add("PIT BULL");
+        dogBreeds.add("BORDER COLLIE");
+        dogBreeds.add("WEST HIGHLAND WHITE");
+        dogBreeds.add("WEST HIGHLAND BLACK");
+        dogBreeds.add("BERNESE MOUNTAIN DOG");
+        dogBreeds.add("GREAT DANE");
+        dogBreeds.add("IRISH WOLFHOUND");
+        dogBreeds.add("RED SETTER");
+        dogBreeds.add("GREYHOUND");
+        dogBreeds.add("POODLE");
+        dogBreeds.add("TERRIER");
+        dogBreeds.add("MASTIFF");
+        dogBreeds.add("BELGIAN MALINOIS");
+        dogBreeds.add("OLD ENGLISH SHEEP DOG");
+        dogBreeds.add("BICHON FRISÉ");
+        dogBreeds.add("DACHSHUND");
+        dogBreeds.add("COCKAPOO");
+        dogBreeds.add("COCKER SPANIEL");
+    }
+
+    // -----------------------------
+    // Methods
+    // -----------------------------
+    /**
+     * Checks if a given dog breed is recognized.
+     *
+     * @param breed The breed to check (case-insensitive)
+     * @return true if breed exists in the set, false otherwise
+     */
+    public static boolean checkBreed(String breed) {
+        if (breed == null) return false; // null input is invalid
+        return dogBreeds.contains(breed.toUpperCase()); // convert to uppercase for comparison
+    }
+}

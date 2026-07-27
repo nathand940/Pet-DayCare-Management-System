@@ -1,0 +1,110 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package models; // Declares that this class belongs to the 'models' package
+
+import utils.CatToyUtility; // Import utility class used to validate cat toys
+
+/**
+ * Cat class represents a cat in the daycare system.
+ * Extends Pet and adds cat-specific properties like indoor status and favourite toy.
+ */
+public class Cat extends Pet { // Inherits from Pet, so has all Pet properties and behaviors
+
+    /* -----------------------------
+       Fields
+       ----------------------------- */
+
+    private boolean indoorCat = true; // True if cat is indoor-only; default true
+    private String favouriteToy = "NOT KNOWN"; // Favourite toy; defaults to "NOT KNOWN" if invalid
+
+    /* -----------------------------
+       Constructor
+       ----------------------------- */
+
+    public Cat(String name, String owner, boolean[] daysAttending, char sex, boolean indoorCat, String favouriteToy) {
+
+        super(name, owner, daysAttending, sex); // Call Pet constructor for common properties
+
+        this.indoorCat = indoorCat; // Set indoor status
+        setFavouriteToy(favouriteToy); // Set favourite toy using setter (validates input)
+    }
+
+    /* -----------------------------
+       Setters
+       ----------------------------- */
+
+    public void setIndoorCat(boolean indoorCat) {
+        this.indoorCat = indoorCat; // Set whether cat is indoor-only
+    }
+
+    public void setFavouriteToy(String favouriteToy) {
+        if (favouriteToy != null) {
+            String toyUpper = favouriteToy.toUpperCase(); // Convert to uppercase
+            if (CatToyUtility.isCatToy(toyUpper)) { // Validate toy against utility
+                this.favouriteToy = toyUpper; // Assign valid toy
+                return;
+            }
+        }
+        this.favouriteToy = "NOT KNOWN"; // Default if invalid or null
+    }
+
+    /* -----------------------------
+       Getters
+       ----------------------------- */
+
+    public boolean isIndoorCat() {
+        return indoorCat; // Return true if cat is indoor-only
+    }
+
+    public String getFavouriteToy() {
+        return favouriteToy; // Return favourite toy
+    }
+
+    /* -----------------------------
+       Weekly Fee Calculation
+       ----------------------------- */
+
+    @Override
+    public double calculateWeeklyFee() { // Implements abstract method from Pet
+        double baseRate = 20.0; // Base daily rate
+        double weeklyFee = 0.0;
+
+        boolean[] days = getDaysAttending(); // Get attendance array
+
+        for (boolean attending : days) { // Loop through each day
+            if (attending) { // Only count days attending
+                weeklyFee += baseRate; // Add base rate
+                if (indoorCat) { // If indoor-only
+                    weeklyFee += 5.0; // Add indoor surcharge
+                }
+            }
+        }
+
+        return weeklyFee; // Return total weekly fee
+    }
+
+    /* -----------------------------
+       toString()
+       ----------------------------- */
+
+    @Override
+    public String toString() { // Returns string representation of cat
+        String daysStr = "";
+        boolean[] days = getDaysAttending(); // Get attendance array
+
+        for (int i = 0; i < days.length; i++) { // Convert boolean array to string
+            daysStr += days[i];
+            if (i < days.length - 1) {
+                daysStr += ", "; // Add commas between days
+            }
+        }
+
+        return "Cat [ID=" + getId() +
+                ", Name=" + getName() +
+                ", Owner=" + getOwner() +
+                ", Sex=" + getSex() +
+                ", DaysAttending=" + daysStr +
+                ", IndoorCat=" + indoorCat +
+                ", FavouriteToy=" + favouriteToy + "]"; // Full formatted info
+    }
+}

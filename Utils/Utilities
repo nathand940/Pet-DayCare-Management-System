@@ -1,0 +1,124 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package utils; // Declares that this class belongs to the 'utils' package
+
+import java.util.List;
+
+/**
+ * Utilities is a general-purpose helper class with static methods.
+ * Provides methods for:
+ * - Number truncation
+ * - Boolean ↔ Y/N conversion
+ * - Range validation
+ * - String truncation and length validation
+ * - List index validation
+ */
+public class Utilities {
+
+    // -----------------------------
+    // Number Utilities
+    // -----------------------------
+
+    /**
+     * Truncates a decimal number to two decimal places (no rounding).
+     * Example: 16.549 → 16.54
+     *
+     * @param number Number to truncate
+     * @return Number truncated to two decimal places
+     */
+    public static double toTwoDecimalPlaces(double number) {
+        return (int) (number * 100) / 100.0; // Multiply by 100, cast to int to remove decimals, then divide by 100
+    }
+
+    // -----------------------------
+    // Boolean Utilities
+    // -----------------------------
+
+    /**
+     * Converts boolean to 'Y'/'N'.
+     *
+     * @param booleanToConvert Boolean value
+     * @return 'Y' if true, 'N' if false
+     */
+    public static char booleanToYN(boolean booleanToConvert) {
+        return booleanToConvert ? 'Y' : 'N';
+    }
+
+    /**
+     * Converts 'Y'/'N' character to boolean.
+     *
+     * @param charToConvert Character to convert
+     * @return true if 'Y' or 'y', false otherwise
+     */
+    public static boolean YNtoBoolean(char charToConvert) {
+        return ((charToConvert == 'y') || (charToConvert == 'Y'));
+    }
+
+    // -----------------------------
+    // Range Validation
+    // -----------------------------
+
+    /**
+     * Checks if an integer is within a specified range [min, max].
+     */
+    public static boolean validRange(int numberToCheck, int min, int max) {
+        return ((numberToCheck >= min) && (numberToCheck <= max));
+    }
+
+    /**
+     * Checks if a double is within a specified range [min, max].
+     */
+    public static boolean validRange(double numberToCheck, double min, double max) {
+        return ((numberToCheck >= min) && (numberToCheck <= max));
+    }
+
+    /**
+     * Checks if a double is within a range [min - delta, max + delta].
+     */
+    public static boolean validRange(double numberToCheck, double min, double max, double delta) {
+        return ((numberToCheck >= (min - delta)) && (numberToCheck <= (max + delta)));
+    }
+
+    // -----------------------------
+    // String Utilities
+    // -----------------------------
+
+    /**
+     * Truncates a string to a specified length.
+     * Returns original string if shorter, null if input is null.
+     */
+    public static String truncateString(String stringToTruncate, int length) {
+        if (stringToTruncate != null) {
+            if (stringToTruncate.length() <= length) {
+                return stringToTruncate; // Already short enough
+            } else {
+                return stringToTruncate.substring(0, length); // Truncate to max length
+            }
+        } else {
+            return null; // Null input returns null
+        }
+    }
+
+    /**
+     * Checks if a string's length is valid (≤ maxLength).
+     * Returns false if string is null.
+     */
+    public static boolean validStringlength(String strToCheck, int maxLength) {
+        if (strToCheck != null) {
+            return strToCheck.length() <= maxLength;
+        }
+        return false;
+    }
+
+    // -----------------------------
+    // List Utilities
+    // -----------------------------
+
+    /**
+     * Checks if a given index is valid for a list.
+     * Returns true if index is in [0, list.size() - 1].
+     */
+    public static boolean isValidIndex(List list, int indexToCheck) {
+        return ((indexToCheck >= 0) && (indexToCheck < list.size()));
+    }
+}

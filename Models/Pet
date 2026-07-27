@@ -1,0 +1,100 @@
+// Student Name: Nathan Dolan
+//Student Number: 20059337
+package models; // Declares that this class belongs to the 'models' package
+
+/**
+ * The Pet class is an abstract superclass representing any pet in the daycare system.
+ * Defines common properties and behaviors for all pets.
+ */
+public abstract class Pet { // Abstract class: cannot be instantiated directly
+
+    // -----------------------------
+    // Fields
+    // -----------------------------
+
+    private int id; // Unique identifier for the pet, auto-generated
+    private String name; // Pet's name (max 30 characters)
+    private String owner; // Owner's name (max 20 characters)
+    private boolean[] daysAttending; // Array of 5 booleans representing Mon-Fri attendance
+    private char sex; // Pet's sex: 'm' for male, 'f' for female
+    private static int nextId = 1000; // Static counter to generate unique IDs starting at 1000
+
+    // -----------------------------
+    // Constructor
+    // -----------------------------
+
+    public Pet(String name, String owner, boolean[] daysAttending, char sex) {
+        this.id = nextId++; // Assign current nextId to id, then increment nextId
+        setName(name); // Call setter to assign name (handles max length)
+        setOwner(owner); // Call setter to assign owner (handles max length)
+        setDaysAttending(daysAttending); // Call setter for attendance (validates array length)
+        setSex(sex); // Call setter for sex (defaults to 'f' if invalid)
+    }
+
+    // -----------------------------
+    // Setters (with rules)
+    // -----------------------------
+
+    public void setName(String name) {
+        if (name != null && name.length() > 30) { // Check if name exceeds 30 characters
+            this.name = name.substring(0, 30); // Truncate name to 30 chars
+        } else {
+            this.name = name; // Otherwise, assign name as is
+        }
+    }
+
+    public void setOwner(String owner) {
+        if (owner != null && owner.length() > 20) { // Check if owner name exceeds 20 chars
+            this.owner = owner.substring(0, 20); // Truncate owner name to 20 chars
+        } else {
+            this.owner = owner; // Otherwise, assign owner name as is
+        }
+    }
+
+    public void setDaysAttending(boolean[] daysAttending) {
+        if (daysAttending != null && daysAttending.length == 5) { // Validate array length
+            this.daysAttending = daysAttending; // Assign if valid
+        } else {
+            this.daysAttending = new boolean[]{false, false, false, false, false}; // Default all false
+        }
+    }
+
+    public void setSex(char sex) {
+        if (sex == 'm' || sex == 'f') { // Only accept 'm' or 'f'
+            this.sex = sex; // Assign valid sex
+        } else {
+            this.sex = 'f'; // Default to 'f' if invalid
+        }
+    }
+
+    // -----------------------------
+    // Getters
+    // -----------------------------
+
+    public int getId() {
+        return id; // Return pet's unique ID
+    }
+
+    public String getName() {
+        return name; // Return pet's name
+    }
+
+    public String getOwner() {
+        return owner; // Return owner's name
+    }
+
+    public boolean[] getDaysAttending() {
+        return daysAttending; // Return attendance array
+    }
+
+    public char getSex() {
+        return sex; // Return pet's sex
+    }
+
+    // -----------------------------
+    // Abstract Methods
+    // -----------------------------
+
+    public abstract double calculateWeeklyFee();
+    // Abstract method: subclasses must implement to calculate weekly fee
+}
